@@ -123,8 +123,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     protobuf-compiler \
     libturbojpeg \
     tree 
-
-RUN cd / && gdown "https://drive.google.com/u/0/uc?id=19D2UjDTjo0_yUr1cBuCm_kGuazUAczY-"
 RUN echo 'y' | python3 -m pip install \
     progressbar \
     opencv-python \
@@ -135,14 +133,15 @@ RUN echo 'y' | python3 -m pip install \
     jupyterlab \
     imutils \
     keras==2.2.4 && \
-    tar -xzvf "xilinx_dnndk_v3.1_190809.tar.gz" && \
+    cd /
+ARG DNNDK_PKG="xilinx_dnndk_v3.1_190809.tar.gz"
+# RUN gdown "https://drive.google.com/u/0/uc?id=19D2UjDTjo0_yUr1cBuCm_kGuazUAczY-"
+COPY ${DNNDK_PKG} /
+RUN tar -xzvf "xilinx_dnndk_v3.1_190809.tar.gz" && \
     rm -rv "xilinx_dnndk_v3.1_190809.tar.gz"
-RUN pip3 install ./xilinx_dnndk_v3.1/host_x86/decent-tf/ubuntu18.04/tensorflow-1.12.0-cp36-cp36m-linux_x86_64.whl && \
-    cd ./xilinx_dnndk_v3.1/host_x86 && chmod +x ./install.sh && sed -i '$ d' install.sh  && ./install.sh
-RUN jupyter-lab --generate-config
-COPY 'setup_jupyterlab.py' /
-RUN cd / && python3 "setup_jupyterlab.py"
-
+RUN cd ./xilinx_dnndk_v3.1/host_x86 && chmod +x ./install.sh && sed -i '$ d' install.sh  && ./install.sh && \
+    python3 -m pip install --force-reinstall ./decent-tf/ubuntu18.04/tensorflow-1.12.0-cp36-cp36m-linux_x86_64.whl
+RUN decent_q --help
 # run the install
 RUN chmod a+rx /${PETA_RUN_FILE} && \
   chmod a+rx /accept-eula.sh && \
@@ -150,7 +149,7 @@ RUN chmod a+rx /${PETA_RUN_FILE} && \
   chmod 777 /tmp /opt/Xilinx && \
   cd /tmp && \
   sudo -u xilinx -i /accept-eula.sh /${PETA_RUN_FILE} /opt/Xilinx/petalinux && \
-  rm -f /${PETA_RUN_FILE} /accept-eula.sh
+  rm -f /${PETA_RUN_FILE} /accept-eula.sh 
 
 
 
@@ -161,12 +160,18 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg-reconfigure dash
 USER xilinx
 ENV HOME /home/xilinx
 ENV LANG en_US.UTF-8
-RUN mkdir /home/xilinx/project
-RUN sudo chmod -R 777 /home/xilinx -v
+RUN mkdir /home/xilinx/project && \
+  sudo chown -Rv xilinx /home/xilinx && \
+  sudo chmod -R 777 /home/xilinx -v
+#install DNNDK_v3.1
+RUN jupyter-lab --generate-config
+COPY 'setup_jupyterlab.py' /
+RUN cd / && python3 "setup_jupyterlab.py" && \
+    sudo chmod -R 777 /home/xilinx -v
 WORKDIR /home/xilinx/project
 
 
 #add xilinx tools to path
-# RUN echo "PATH=$PATH:/home/xilinx/.local/bin" >> /home/xilinx/.bashrc
-RUN echo "source /opt/Xilinx/petalinux/settings.sh" >> /home/xilinx/.bashrc
+RUN echo "PATH=$PATH:/home/xilinx/.local/bin" >> /home/xilinx/.bashrc && \
+    echo "source /opt/Xilinx/petalinux/settings.sh" >> /home/xilinx/.bashrc
 
