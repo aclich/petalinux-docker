@@ -8,4 +8,4 @@ docker run \
     -v $HOME/.Xauthority:/home/xilinx/.Xauthority \
     -v $HOME/Projects:/home/xilinx/project \
     --name petalinux2019.2_DNNDKv3.1 \
-    petalinux:2019.2 jupyter-lab
+    petalinux_DNNDK:2019.2_3.1 jupyter-lab
