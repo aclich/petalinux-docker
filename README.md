@@ -20,13 +20,15 @@ This branch help you to create a docker image with petalinux and DNNDKv3.1.
 
    ```
 ## Building Image
-Copy petalinux-v2019.2-final-installer.run and xilinx_dnndk_v3.1_190809.tar.gz. Then run  
-`chmod +x ./build_docker.sh && ./build_docker.sh`i
+Copy petalinux-v2019.2-final-installer.run and xilinx_dnndk_v3.1_190809.tar.gz to this folder. Then run  
+`chmod +x ./build_docker.sh && ./build_docker.sh`
 <!--or 
 `docker build --build-arg PETA_VERSION=2019.2 --build-arg PETA_RUN_FILE=petalinux-v2019.2-final-installer.run --build-arg UBUNTU_MIRROR=free.nchc.org.tw -t petalinux_DNNDK:2019.2_3.1 .`-->
 
 
-After installation, launch petalinux with:  
+After installation, create container with:  
 `chmod +x ./run_docker.sh && ./run_docker.sh`
 <!--or
 `docker run -ti -e DISPLAY=$DISPLAY -p 8888:8888 -p 5000:5000 -v /tmp/.X11-unix:/tmp/.X11-unix -v $HOME/.Xauthority:/home/xilinx/.Xauthority -v $HOME/Projects:/home/xilinx/project --name petalinux_DNNDK petalinux_DNNDK:2019.2_3.1 jupyter-lab`-->
+
+The script is running the container with jupyter-lab as default. You can continue your job in the jupyter-lab by accessing the url in the terminal.
